@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Logs (runner-local, never needed in the repo)
+*.log
+
+# Local secret overrides — NEVER commit real tokens
+config.local.json
+.env
+
+# OS junk
+.DS_Store
+Thumbs.db

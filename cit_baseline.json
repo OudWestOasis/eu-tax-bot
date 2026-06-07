@@ -1,0 +1,65 @@
+{
+  "as_of": "2026",
+  "source": "Tax Foundation — Corporate Income Tax Rates in Europe 2026 (combined statutory)",
+  "source_url": "https://taxfoundation.org/data/all/eu/corporate-income-tax-rates-europe/",
+  "_note": "rate = huidige gecombineerde statutaire CIT (centraal + lokaal). proposal = aangekondigde wijziging die nog NIET enacted is. recent = recent wel-enacted wijziging. Werk dit bestand bij wanneer iets verandert; de live alert-bot signaleert nieuwe ontwikkelingen.",
+
+  "countries": {
+    "Netherlands": {"code": "NL", "flag": "🇳🇱", "rate": 25.8, "priority": true, "note": "19% opstaptarief tot €200k, 25,8% daarboven"},
+    "Luxembourg":  {"code": "LU", "flag": "🇱🇺", "rate": 23.9, "priority": true, "recent": "verlaagd 24,94% → 23,9% (2025)"},
+    "Denmark":     {"code": "DK", "flag": "🇩🇰", "rate": 22.0, "priority": true},
+    "Finland":     {"code": "FI", "flag": "🇫🇮", "rate": 20.0, "priority": true,
+                    "proposal": {"new_rate": 18.0, "effective": "2027-01-01", "status": "PROPOSAL",
+                                 "detail": "consultatie t/m 25-5-2026; beoogde inwerkingtreding 1-1-2027"}},
+    "Norway":      {"code": "NO", "flag": "🇳🇴", "rate": 22.0, "priority": true},
+    "Sweden":      {"code": "SE", "flag": "🇸🇪", "rate": 20.6, "priority": true},
+
+    "Austria":     {"code": "AT", "flag": "🇦🇹", "rate": 23.0, "recent": "verlaagd 24% → 23% (2024)"},
+    "Belgium":     {"code": "BE", "flag": "🇧🇪", "rate": 25.0},
+    "Bulgaria":    {"code": "BG", "flag": "🇧🇬", "rate": 10.0},
+    "Croatia":     {"code": "HR", "flag": "🇭🇷", "rate": 18.0},
+    "Cyprus":      {"code": "CY", "flag": "🇨🇾", "rate": 12.5},
+    "Czechia":     {"code": "CZ", "flag": "🇨🇿", "rate": 21.0, "recent": "verhoogd 19% → 21% (2024)"},
+    "Estonia":     {"code": "EE", "flag": "🇪🇪", "rate": 22.0, "recent": "verhoogd 20% → 22% (2025)", "note": "distributiebelasting (bij winstuitkering)"},
+    "France":      {"code": "FR", "flag": "🇫🇷", "rate": 25.8, "note": "incl. 3,3% sociale bijdrage; tijdelijke surtax voor grote ondernemingen"},
+    "Germany":     {"code": "DE", "flag": "🇩🇪", "rate": 30.1, "note": "incl. Gewerbesteuer + soli"},
+    "Greece":      {"code": "GR", "flag": "🇬🇷", "rate": 22.0},
+    "Hungary":     {"code": "HU", "flag": "🇭🇺", "rate": 9.0},
+    "Iceland":     {"code": "IS", "flag": "🇮🇸", "rate": 20.0, "recent": "verlaagd 21% → 20% (2025)"},
+    "Ireland":     {"code": "IE", "flag": "🇮🇪", "rate": 12.5, "note": "12,5% standaard; 15% minimumtarief (Pillar Two) voor grote groepen"},
+    "Italy":       {"code": "IT", "flag": "🇮🇹", "rate": 27.8, "note": "IRES 24% + IRAP ~3,9%"},
+    "Latvia":      {"code": "LV", "flag": "🇱🇻", "rate": 20.0, "note": "distributiebelasting (bij winstuitkering)"},
+    "Lithuania":   {"code": "LT", "flag": "🇱🇹", "rate": 17.0, "recent": "verhoogd 15% → 17% (2025–26)"},
+    "Malta":       {"code": "MT", "flag": "🇲🇹", "rate": 35.0, "note": "effectief vaak lager via teruggaaf-systeem"},
+    "Poland":      {"code": "PL", "flag": "🇵🇱", "rate": 19.0, "note": "9% voor kleine belastingplichtigen"},
+    "Portugal":    {"code": "PT", "flag": "🇵🇹", "rate": 29.5, "recent": "verlaagd 31,5% → 29,5% (2025–26)"},
+    "Romania":     {"code": "RO", "flag": "🇷🇴", "rate": 16.0},
+    "Slovakia":    {"code": "SK", "flag": "🇸🇰", "rate": 24.0, "recent": "verhoogd 21% → 24% (2025)"},
+    "Slovenia":    {"code": "SI", "flag": "🇸🇮", "rate": 22.0, "recent": "verhoogd 19% → 22% (2025)"},
+    "Spain":       {"code": "ES", "flag": "🇪🇸", "rate": 25.0},
+    "Switzerland": {"code": "CH", "flag": "🇨🇭", "rate": 19.6, "note": "varieert sterk per kanton"},
+    "Turkey":      {"code": "TR", "flag": "🇹🇷", "rate": 25.0},
+    "United Kingdom": {"code": "GB", "flag": "🇬🇧", "rate": 25.0, "note": "19% small profits rate tot £50k"}
+  },
+
+  "eu_developments": [
+    {
+      "title": "EU-lijst niet-coöperatieve jurisdicties",
+      "date": "2026-02-17",
+      "status": "ENACTED",
+      "detail": "10 landen: American Samoa, Anguilla, Guam, Palau, Panama, Rusland, Turks & Caicos, US Virgin Islands, Vanuatu, Vietnam. Toegevoegd: Turks & Caicos + Vietnam; verwijderd: Fiji, Samoa, Trinidad & Tobago. Volgende review: okt 2026."
+    },
+    {
+      "title": "Pillar Two — 15% wereldwijd minimumtarief",
+      "date": "2024-01-01",
+      "status": "ENACTED",
+      "detail": "EU-richtlijn van kracht in alle lidstaten; top-up tax voor groepen >€750m omzet."
+    },
+    {
+      "title": "ViDA — VAT in the Digital Age",
+      "date": "2025-03-11",
+      "status": "ENACTED",
+      "detail": "Aangenomen; gefaseerde invoering 2027–2035 (e-facturatie, platform-economie, single VAT registration)."
+    }
+  ]
+}

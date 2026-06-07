@@ -1,0 +1,56 @@
+name: Poll commands
+
+# Replaces the always-on listener (24/7 isn't possible on free Actions).
+# Runs every 30 minutes, processes pending Telegram commands, confirms them
+# server-side. So /overview etc. are answered within ~30 min (often more —
+# scheduled Actions can be delayed under load).
+#
+# COST (private repo = 2000 free minutes/month, each run rounds up to >=1 min):
+#   every 30 min -> 48 runs/day -> ~1440 runs/month -> ~1440 min/month.
+#   plus daily alerts (~30/mo) + weekly overview (~5/mo) = well under 2000.
+#   Going faster (e.g. every 15 min) would exceed the free tier on a private
+#   repo. Make the repo PUBLIC for unlimited free minutes if you want it faster.
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write              # /scan can update state.json
+
+concurrency:
+  group: state-writer          # serialise with the alerts workflow
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Poll & handle commands
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python poller.py
+
+      - name: Commit state if /scan changed it
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state.json
+          if git diff --staged --quiet; then
+            echo "No state changes to commit."
+          else
+            git commit -m "Update dedup state (poll/scan) [skip ci]"
+            git pull --rebase origin "${{ github.ref_name }}" || true
+            git push
+          fi

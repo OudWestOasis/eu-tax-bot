@@ -1,0 +1,16 @@
+{
+  "telegram_token": "",
+  "chat_id": "",
+
+  "priority_countries": ["Netherlands", "Luxembourg", "Denmark", "Finland", "Norway", "Sweden"],
+  "include_all_europe": true,
+  "include_local_language": true,
+
+  "max_age_days": 21,
+  "max_items_per_run": 50,
+  "items_per_message": 6,
+
+  "topics": ["CIT", "VAT", "EU_DIRECTIVE"],
+
+  "_comment": "SECRETS COME FROM ENVIRONMENT, NOT THIS FILE. In the cloud, GitHub Actions injects TELEGRAM_TOKEN and TELEGRAM_CHAT_ID from repository Secrets (see settings.py). Leave telegram_token and chat_id empty here — never commit real values."
+}
