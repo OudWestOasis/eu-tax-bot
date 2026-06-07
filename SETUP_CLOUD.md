@@ -10,7 +10,7 @@ geplande GitHub Actions-workflows.
 |----------|-----|--------------|-------------|
 | `alerts.yml` | Dagelijkse nieuws-scan → nieuwe ontwikkelingen | `0 6 * * *` | 07:00 (winter) / 08:00 (zomer) |
 | `overview.yml` | Wekelijks volledig CIT + EU overzicht | `30 6 * * 1` (ma) | 07:30 / 08:30 |
-| `poll.yml` | Commando's ophalen & beantwoorden | `*/30 * * * *` | elke 30 min |
+| `poll.yml` | Commando's ophalen & beantwoorden | `*/5 * * * *` | elke 5 min |
 
 > **Cron is altijd UTC en kent géén zomertijd.** Daarom verschuift de lokale tijd
 > een uur tussen winter en zomer. Wil je exact 07:00 het hele jaar? Pas de cron
@@ -25,7 +25,7 @@ GitHub te maken en te pushen.
 
 **Optie 1 — via de GitHub website:**
 1. Ga naar <https://github.com/new>
-2. Repository name: bv. `eu-tax-bot` · zet op **Private** · **géén** README/.gitignore aanvinken
+2. Repository name: bv. `eu-tax-bot` · zet op **Public** (nodig voor onbeperkte gratis Actions-minuten bij 5-min-polling) · **géén** README/.gitignore aanvinken
 3. Klik **Create repository**
 4. Koppel en push (vervang `JOUW-NAAM`):
    ```powershell
@@ -38,7 +38,7 @@ GitHub te maken en te pushen.
 **Optie 2 — via GitHub CLI (`gh`), in één commando:**
 ```powershell
 cd "C:\Users\joris\Claude\Tax (AI) Control Framework\eu-tax-bot-cloud"
-gh repo create eu-tax-bot --private --source=. --remote=origin --push
+gh repo create eu-tax-bot --public --source=. --remote=origin --push
 ```
 
 ---
@@ -98,11 +98,11 @@ Ga naar het tabblad **Actions** in je repo. Per workflow:
 
 - **Cron-vertraging:** geplande Actions starten vaak **enkele minuten te laat**
   (soms 10–30 min) bij drukte op GitHub. Niet stipt, wel betrouwbaar genoeg.
-- **Gratis minuten (privé-repo = 2000/maand):** elke run telt afgerond als
-  ≥1 minuut. Bij `*/30` poll: ~1440 min + alerts (~30) + overview (~5) ≈
-  **~1475 min/maand** — ruim binnen 2000. Sneller pollen (bv. elke 15 min)
-  overschrijdt het gratis tier op een privé-repo. Wil je sneller én gratis?
-  Zet de repo op **Public** (onbeperkte Actions-minuten).
+- **Gratis minuten:** deze repo is **Public**, dus Actions-minuten zijn
+  **onbeperkt en gratis** — daarom kan de poll op elke 5 min. (Op een privé-repo
+  zou `*/5` ~8640 runs/maand zijn, ver boven de 2000 gratis minuten.) Let op:
+  bij een public repo is de **code zichtbaar** voor iedereen — maar je geheimen
+  niet: die staan als GitHub Secrets, nooit in de code.
 - **60-dagen-pauze:** GitHub zet `schedule`-workflows **automatisch uit na 60
   dagen zonder repo-activiteit**. De `state.json`-commits van de alerts-workflow
   houden de repo actief, dus dit speelt normaal niet — maar als alles 2 maanden

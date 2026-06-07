@@ -1,18 +1,16 @@
 name: Poll commands
 
 # Replaces the always-on listener (24/7 isn't possible on free Actions).
-# Runs every 30 minutes, processes pending Telegram commands, confirms them
-# server-side. So /overview etc. are answered within ~30 min (often more —
-# scheduled Actions can be delayed under load).
+# Runs every 5 minutes, processes pending Telegram commands, confirms them
+# server-side. So /overview etc. are answered within ~5 min (sometimes more —
+# scheduled Actions can be delayed under load; 5 min is GitHub's minimum).
 #
-# COST (private repo = 2000 free minutes/month, each run rounds up to >=1 min):
-#   every 30 min -> 48 runs/day -> ~1440 runs/month -> ~1440 min/month.
-#   plus daily alerts (~30/mo) + weekly overview (~5/mo) = well under 2000.
-#   Going faster (e.g. every 15 min) would exceed the free tier on a private
-#   repo. Make the repo PUBLIC for unlimited free minutes if you want it faster.
+# COST: this repo is PUBLIC, so GitHub Actions minutes are UNLIMITED and free.
+#   (On a private repo */5 would be ~8640 runs/month, far over the 2000 free
+#   minutes — that's why the repo is public.)
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "*/5 * * * *"
   workflow_dispatch: {}
 
 permissions:
