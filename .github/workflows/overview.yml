@@ -1,10 +1,13 @@
 name: Weekly overview
 
-# Full CIT + EU snapshot, pushed every Monday.
-# 06:30 UTC = 07:30 Amsterdam (winter / CET) or 08:30 (summer / CEST).
+# Full CIT + EU snapshot, pushed every Monday and Friday.
+# Cron is UTC (no daylight saving):
+#   "30 6 * * 1" = Monday 06:30 UTC = 07:30 NL (winter) / 08:30 NL (summer)
+#   "0 6 * * 5"  = Friday 06:00 UTC = 07:00 NL (winter) / 08:00 NL (summer)
 on:
   schedule:
     - cron: "30 6 * * 1"       # 1 = Monday
+    - cron: "0 6 * * 5"        # 5 = Friday (08:00 NL in summer / 07:00 in winter)
   workflow_dispatch: {}
 
 permissions:

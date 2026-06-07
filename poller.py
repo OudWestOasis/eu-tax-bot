@@ -30,14 +30,16 @@ API = "https://api.telegram.org/bot{token}/{method}"
 
 HELP = (
     "🤖 <b>Tax Developments bot (cloud)</b>\n\n"
+    "💬 Tip: typ gewoon <b>Tax</b> of <b>Belasting</b> (hoofdletters maakt niet uit) "
+    "voor het volledige overzicht.\n\n"
     "/overview — volledig overzicht (CIT + EU)\n"
     "/cit — CIT-tarieven per land\n"
     "/cit NL — detail voor één land (bv. NL, FI, DE)\n"
     "/eu — EU-ontwikkelingen\n"
     "/scan — draai nu een verse nieuws-scan\n"
     "/help — deze hulp\n\n"
-    "ℹ️ Draait in de cloud: antwoorden kunnen tot ~30 min duren (poll-interval).\n"
-    "Elke ochtend krijg je nieuwe ontwikkelingen, elke maandag het volledige overzicht."
+    "ℹ️ Draait in de cloud: antwoorden komen meestal binnen ~5 min.\n"
+    "Elke ochtend krijg je nieuwe ontwikkelingen; elke maandag én vrijdag het volledige overzicht."
 )
 
 
@@ -80,7 +82,8 @@ def handle(token, chat_id, text):
 
     if cmd in ("start", "help"):
         send(token, chat_id, HELP)
-    elif cmd == "overview":
+    elif cmd in ("overview", "tax", "belasting"):
+        # Plain keyword "tax"/"belasting" (any case) also gives the overview.
         send(token, chat_id, ov.build_full_overview(with_live=True))
     elif cmd == "cit":
         if arg.strip():
