@@ -25,6 +25,7 @@ except Exception:  # noqa: BLE001
 
 from settings import load_config
 import overview as ov
+import coordinator
 
 API = "https://api.telegram.org/bot{token}/{method}"
 
@@ -126,6 +127,11 @@ def main():
     if not token:
         print("No TELEGRAM_TOKEN; abort.")
         sys.exit(1)
+
+    # Hand over to the laptop when it's active (only the cloud stands by).
+    if coordinator.should_cloud_standby():
+        print("laptop actief — cloud staat stand-by (poll overgeslagen)")
+        return
 
     set_commands(token)
 

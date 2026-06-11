@@ -35,6 +35,7 @@ except Exception:  # noqa: BLE001
 from sources import build_sources
 from classifier import is_relevant, classify_status, mentions_europe, STATUS_ICON
 from settings import load_config
+import coordinator
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 STATE_PATH = os.path.join(HERE, "state.json")
@@ -232,6 +233,11 @@ def main():
     if not chat_id:
         log("No chat_id in config.json yet. Run get_chat_id.py first (send /start to the bot).")
         sys.exit(1)
+
+    # Hand over to the laptop when it's active (only the cloud stands by).
+    if coordinator.should_cloud_standby():
+        log("laptop actief — cloud staat stand-by (scan overgeslagen)")
+        return
 
     state = load_state()
     first_run = state.get("first_run", False)

@@ -11,6 +11,10 @@ venv/
 config.local.json
 .env
 
+# Laptop-runner local files (machine-specific, not shared)
+runner.lock
+last_scan.txt
+
 # OS junk
 .DS_Store
 Thumbs.db

@@ -37,6 +37,8 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_LOCATION: cloud
+          LAPTOP_HEARTBEAT: ${{ vars.LAPTOP_HEARTBEAT }}   # set by the laptop; cloud stands by if fresh
         run: python poller.py
 
       - name: Commit state if /scan changed it

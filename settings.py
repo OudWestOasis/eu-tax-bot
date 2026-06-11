@@ -16,11 +16,22 @@ import json
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(HERE, "config.json")
+LOCAL_CONFIG_PATH = os.path.join(HERE, "config.local.json")
 
 
 def load_config():
-    with open(CONFIG_PATH, encoding="utf-8") as f:
+    with open(CONFIG_PATH, encoding="utf-8-sig") as f:  # utf-8-sig tolerates a BOM
         cfg = json.load(f)
+
+    # Local secret overrides (gitignored, never committed). Used on the laptop
+    # so it has the real token/chat without putting them in the repo.
+    # Precedence: environment > config.local.json > config.json
+    if os.path.exists(LOCAL_CONFIG_PATH):
+        try:
+            with open(LOCAL_CONFIG_PATH, encoding="utf-8-sig") as f:
+                cfg.update({k: v for k, v in json.load(f).items() if v not in ("", None)})
+        except (OSError, json.JSONDecodeError):
+            pass
 
     # Environment overrides config.json (so secrets stay out of the repo).
     cfg["telegram_token"] = (
