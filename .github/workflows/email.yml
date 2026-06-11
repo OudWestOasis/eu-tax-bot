@@ -1,0 +1,32 @@
+name: Weekly email
+
+# E-mailt het volledige CIT + EU overzicht elke vrijdagochtend.
+# "0 6 * * 5" = vrijdag 06:00 UTC = 08:00 NL (zomer/CEST) / 07:00 NL (winter/CET).
+# Cron is UTC en kent geen zomertijd.
+on:
+  schedule:
+    - cron: "0 6 * * 5"        # 5 = vrijdag
+  workflow_dispatch: {}        # testknop in het Actions-tabblad
+
+permissions:
+  contents: read
+
+jobs:
+  email:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Send weekly email
+        env:
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}     # optioneel; valt anders terug op config.json
+        run: python email_overview.py

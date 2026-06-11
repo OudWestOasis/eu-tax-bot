@@ -1,6 +1,7 @@
 {
   "telegram_token": "",
   "chat_id": "",
+  "email_to": "joris.van.ierssel@outlook.com",
 
   "priority_countries": ["Netherlands", "Luxembourg", "Denmark", "Finland", "Norway", "Sweden"],
   "include_all_europe": true,

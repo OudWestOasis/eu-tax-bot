@@ -29,4 +29,8 @@ def load_config():
     cfg["chat_id"] = str(
         os.environ.get("TELEGRAM_CHAT_ID") or cfg.get("chat_id", "")
     ).strip()
+    # Recipient for the weekly e-mail (not a secret; env may override).
+    cfg["email_to"] = (
+        os.environ.get("EMAIL_TO") or cfg.get("email_to", "")
+    ).strip()
     return cfg

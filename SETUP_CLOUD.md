@@ -11,6 +11,7 @@ geplande GitHub Actions-workflows.
 | `alerts.yml` | Dagelijkse nieuws-scan → nieuwe ontwikkelingen | `0 6 * * *` | 07:00 (winter) / 08:00 (zomer) |
 | `overview.yml` | Wekelijks volledig CIT + EU overzicht | `30 6 * * 1` (ma) | 07:30 / 08:30 |
 | `poll.yml` | Commando's ophalen & beantwoorden | `*/5 * * * *` | elke 5 min |
+| `email.yml` | Volledig overzicht per **e-mail** | `0 6 * * 5` (vr) | 08:00 (zomer) / 07:00 (winter) |
 
 > **Cron is altijd UTC en kent géén zomertijd.** Daarom verschuift de lokale tijd
 > een uur tussen winter en zomer. Wil je exact 07:00 het hele jaar? Pas de cron
@@ -52,6 +53,21 @@ New repository secret**. Maak deze twee aan:
 |-------------|--------|
 | `TELEGRAM_TOKEN` | Je bot-token van BotFather (staat in je lokale `eu_tax_monitor\config.json`) |
 | `TELEGRAM_CHAT_ID` | Je chat-id (staat in diezelfde lokale `config.json`, veld `chat_id`) |
+| `SMTP_USER` | Je Gmail-adres (afzender van de wekelijkse mail) |
+| `SMTP_PASS` | Een Gmail **app-wachtwoord** (16 tekens) — zie stap B2 |
+| `EMAIL_TO` | *(optioneel)* ontvanger; leeg laten = waarde uit `config.json` (`joris.van.ierssel@outlook.com`) |
+
+### Stap B2 — Gmail app-wachtwoord maken (voor de e-mail)
+
+Gmail laat scripts niet met je gewone wachtwoord inloggen; je hebt een
+**app-wachtwoord** nodig:
+1. Zet **2-stapsverificatie** aan op je Google-account (vereist):
+   <https://myaccount.google.com/security>
+2. Ga naar **App-wachtwoorden**: <https://myaccount.google.com/apppasswords>
+3. Geef het een naam (bv. "Tax bot") → Google toont een code van **16 tekens**.
+4. Zet die als secret `SMTP_PASS` (zonder spaties), en je Gmail-adres als `SMTP_USER`.
+
+> Geen Gmail? Dan kunnen we overstappen op een mail-API (bv. Brevo) — laat het weten.
 
 > Plak deze waardes **alleen** in het GitHub Secrets-scherm — nooit in code of in
 > een commit. De repo bevat bewust een lege `config.json`.
@@ -90,7 +106,8 @@ Ga naar het tabblad **Actions** in je repo. Per workflow:
 |----------|--------------------|
 | **Daily tax alerts** | Run groen; in Telegram nieuwe items (of "No new items" in de log als er niets nieuws is). `state.json` wordt teruggecommit als er iets veranderde. |
 | **Weekly overview** | Run groen; je krijgt het volledige CIT + EU overzicht in Telegram. |
-| **Poll commands** | Typ eerst `/overview` in Telegram, start dan deze workflow. Run groen; je krijgt antwoord. (Zonder openstaand bericht: log zegt "No pending messages".) |
+| **Poll commands** | Typ eerst `/overview` (of `Tax`) in Telegram, start dan deze workflow. Run groen; je krijgt antwoord. (Zonder openstaand bericht: log zegt "No pending messages".) |
+| **Weekly email** | Run groen; je krijgt het overzicht in je inbox (`joris.van.ierssel@outlook.com`). Niets ontvangen? Check spam + of `SMTP_USER`/`SMTP_PASS` kloppen. |
 
 ---
 
