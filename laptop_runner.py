@@ -59,10 +59,17 @@ def gh_path():
 
 
 def run(cmd, timeout=60):
-    """Run a command; return (ok, output). Never raises."""
+    """Run a command; return (ok, output). Never raises.
+
+    On Windows we pass CREATE_NO_WINDOW so git/gh don't flash a console window
+    when this runner is launched windowless via pythonw.
+    """
+    kwargs = {}
+    if os.name == "nt":
+        kwargs["creationflags"] = 0x08000000  # CREATE_NO_WINDOW
     try:
         r = subprocess.run(cmd, cwd=HERE, capture_output=True, text=True,
-                           timeout=timeout)
+                           timeout=timeout, **kwargs)
         return r.returncode == 0, (r.stdout + r.stderr).strip()
     except Exception as e:  # noqa: BLE001
         return False, str(e)

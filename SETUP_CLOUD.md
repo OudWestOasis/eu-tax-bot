@@ -131,3 +131,55 @@ Ga naar het tabblad **Actions** in je repo. Per workflow:
   commits "Update dedup state" — dat hoort zo.
 - **CIT-data bijwerken:** `cit_baseline.json` aanpassen → commit & push; de
   volgende run gebruikt de nieuwe cijfers.
+
+---
+
+## 🔁 Hybride: laptop neemt over als hij aan staat
+
+Naast de cloud draait er (optioneel) een **laptop-runner** die het sneller
+overneemt zolang je laptop aan staat. Staat hij dicht/uit, dan blijft de cloud
+het gewoon doen. **Nooit dubbel** dankzij een heartbeat-coördinatie.
+
+**Hoe het werkt**
+- De laptop draait elke minuut (taak **"EU Tax Laptop Runner"**) en ververst een
+  GitHub **repo-variabele** `LAPTOP_HEARTBEAT` (een tijdstempel — geen commits).
+- Hij handelt **commando's elke minuut** af + draait de **nieuws-scan gethrottled**
+  (max. elke 10 min).
+- De cloud-workflows `poll.yml` en `alerts.yml` lezen die heartbeat: is die
+  **< 3 min** oud → de cloud gaat **stand-by** (logt "laptop actief — cloud staat
+  stand-by"); is hij oud/leeg → de cloud draait normaal.
+- **Regel tegen dubbel:** de laptop verstuurt alleen als hij de heartbeat
+  succesvol heeft gezet. Gedeelde `state.json` (git pull vóór, push ná) houdt de
+  dedup kloppend bij het wisselen.
+- `overview.yml` (ma/vr Telegram) en `email.yml` (vr mail) blijven puur cloud.
+
+**Componenten:** `coordinator.py`, `laptop_runner.py`, `.venv/` (eigen
+packages), `config.local.json` (secrets, **gitignored**), `register_laptop_runner.ps1`.
+
+**Installeren op de laptop (eenmalig)**
+```powershell
+cd "<repo-map>"
+# 1. lokale secrets (gitignored) — token + chat_id + email_to:
+#    maak config.local.json  {"telegram_token":"...","chat_id":"...","email_to":"..."}
+# 2. zelfstandige venv met de packages (user-site werkt niet onder de Taakplanner):
+python -m venv .venv
+.\.venv\Scripts\python -m pip install -r requirements.txt
+# 3. taak registreren (elke minuut, vensterloos, ook op accu):
+powershell -ExecutionPolicy Bypass -File register_laptop_runner.ps1
+```
+
+**Aan/uit zetten**
+```powershell
+Disable-ScheduledTask -TaskName "EU Tax Laptop Runner"   # uit -> alleen cloud
+Enable-ScheduledTask  -TaskName "EU Tax Laptop Runner"   # weer aan
+Unregister-ScheduledTask -TaskName "EU Tax Laptop Runner" -Confirm:$false  # helemaal weg
+```
+
+**Aandachtspunten**
+- Overname werkt alleen als je **ingelogd** bent (laptop open/in gebruik). Bij
+  slaap/dicht/uitgelogd veroudert de heartbeat en neemt de cloud binnen ~5 min over.
+- De **venv** is nodig: de Taakplanner laadt user-site-packages niet, dus de bot
+  moet zijn eigen `.venv` hebben.
+- Geen internet → de laptop zet geen heartbeat en stuurt niets; de cloud doet het.
+- Kleine overgangsrace (laptop net aan/net uit) wordt opgevangen door de dedup
+  (`state.json`) en Telegram's server-side `getUpdates`-offset — geen dubbele inhoud.
