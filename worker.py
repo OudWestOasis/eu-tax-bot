@@ -36,6 +36,7 @@ import overview as ov
 import poller
 import tax_monitor
 import email_overview
+import claude_research as cr
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -93,12 +94,50 @@ def job_overview():
         log(f"overzicht fout: {e}")
 
 
+def send_plain(token, chat_id, text):
+    """Stuur platte tekst (geen HTML) — Claude-output kan < > & bevatten."""
+    for chunk in ov.split_for_telegram(text):
+        poller.api(token, "sendMessage", data={
+            "chat_id": chat_id, "text": chunk, "disable_web_page_preview": "true"})
+
+
+def deep_research_to(token, chat_id):
+    """Claude Deep Research op aanvraag ('API'). Lokaal als Claude er is; anders
+    een verzoek loggen voor de laptop-bridge (Railway-modus)."""
+    if cr.available():
+        poller.send(token, chat_id, "🔎 Claude doet nu deep research… (kan ~1–3 min duren)")
+        ok, text = cr.research()
+        if ok:
+            send_plain(token, chat_id, "🧠 Deep research (Claude) — tax-ontwikkelingen:\n\n" + text)
+        elif text == "LOGIN":
+            poller.send(token, chat_id, "⚠️ Claude is niet ingelogd op de laptop. "
+                                        "Draai eenmalig <code>claude</code> en /login.")
+        else:
+            poller.send(token, chat_id, f"⚠️ Deep research mislukt: {text}")
+    else:
+        log(f"RESEARCH_REQUEST id=0 chat={chat_id}")
+        poller.send(token, chat_id, "🔎 Deep research aangevraagd; je laptop met Claude pakt het op "
+                                    "zodra die aan staat.")
+
+
 def combined_update(reason=""):
-    """De '2x per week'-update: nieuwe ontwikkelingen (scan) + CIT/EU-overzicht."""
+    """De '2x per week'-update. Op de laptop: Claude Deep Research + CIT/EU-overzicht.
+    Zonder Claude (Railway): nieuws-scan + overzicht."""
     log(f"combined update start ({reason})")
-    do_scan(reason)        # stuurt nieuwe ontwikkelingen (of niets nieuws)
-    job_overview()         # stuurt het CIT/EU-overzicht
-    log("combined update klaar")
+    cfg = load_config()
+    token, chat_id = cfg["telegram_token"], cfg["chat_id"]
+    used_claude = False
+    if cr.available():
+        ok, text = cr.research()
+        if ok:
+            send_plain(token, chat_id, "🧠 Wekelijkse deep research (Claude) — tax-ontwikkelingen:\n\n" + text)
+            used_claude = True
+        else:
+            log(f"claude research niet gelukt ({text[:40]}) — val terug op scan")
+    if not used_claude:
+        do_scan(reason)        # fallback: nieuwe ontwikkelingen via de scan
+    job_overview()             # CIT/EU-overzicht
+    log(f"combined update klaar (claude={used_claude})")
 
 
 def start_scheduler():
@@ -124,14 +163,7 @@ def start_scheduler():
 def handle_message(token, chat_id, text, update_id=0):
     cmd = text.strip().partition(" ")[0].lower().lstrip("/").split("@")[0]
     if cmd == "api":
-        # Deep research draait GRATIS via Claude Code op de laptop. Railway kan
-        # het zelf niet; we loggen een verzoek dat de laptop-runner oppikt.
-        log(f"RESEARCH_REQUEST id={update_id} chat={chat_id}")
-        poller.send(token, chat_id,
-                    "🔎 <b>Deep research aangevraagd</b>\n"
-                    "Claude doet onderzoek naar de nieuwste tax-ontwikkelingen. "
-                    "Als je laptop met Claude aan staat krijg je binnen ~1–3 min een "
-                    "samenvatting; anders zodra je laptop weer aan is.")
+        deep_research_to(token, chat_id)          # Claude Deep Research (lokaal)
     elif cmd == "fastlane":
         # On-demand: dezelfde gecombineerde update als de 2x/week-planning.
         poller.send(token, chat_id, "⏳ Fastlane-update gestart… (nieuws + overzicht)")
