@@ -46,7 +46,13 @@ SCAN_LOCK = threading.Lock()
 
 
 def log(msg):
-    print(f"{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%SZ')}  {msg}", flush=True)
+    line = f"{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%SZ')}  {msg}"
+    print(line, flush=True)
+    try:
+        with open(os.path.join(HERE, "worker.log"), "a", encoding="utf-8") as f:
+            f.write(line + "\n")
+    except OSError:
+        pass
 
 
 # --------------------------------------------------------------- state seed --
