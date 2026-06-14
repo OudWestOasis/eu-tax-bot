@@ -143,7 +143,9 @@ def command_loop(token):
     offset = None
     while True:
         try:
-            params = {"timeout": 50}
+            # Long-poll timeout must stay BELOW poller.api's HTTP timeout (40s),
+            # anders breekt de HTTP-read voordat de long-poll terugkeert.
+            params = {"timeout": 25}
             if offset is not None:
                 params["offset"] = offset
             r = poller.api(token, "getUpdates", params=params)
