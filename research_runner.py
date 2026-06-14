@@ -20,6 +20,7 @@ import os
 import re
 import sys
 import time
+import shutil
 import subprocess
 
 try:
@@ -35,9 +36,26 @@ LOCK_PATH = os.path.join(HERE, "research.lock")
 LAST_PATH = os.path.join(HERE, "research_last.txt")
 LOG_PATH = os.path.join(HERE, "research_runner.log")
 
-NPM = os.path.join(os.environ.get("APPDATA", ""), "npm")
-RAILWAY = os.path.join(NPM, "railway.cmd")
-CLAUDE = os.path.join(NPM, "claude.cmd")
+def find_exe(name):
+    """Resolve a CLI installed via npm, robust to Task Scheduler's stripped env."""
+    p = shutil.which(name) or shutil.which(name + ".cmd")
+    if p:
+        return p
+    bases = [
+        os.environ.get("APPDATA"),
+        os.path.join(os.environ.get("USERPROFILE", ""), "AppData", "Roaming"),
+        r"C:\Users\joris\AppData\Roaming",          # laatste vangnet (deze laptop)
+    ]
+    for base in bases:
+        if base:
+            cand = os.path.join(base, "npm", name + ".cmd")
+            if os.path.exists(cand):
+                return cand
+    return None
+
+
+RAILWAY = find_exe("railway")
+CLAUDE = find_exe("claude")
 
 LOCK_STALE_SEC = 600          # research mag lang duren
 CLAUDE_TIMEOUT = 360          # max 6 min voor het onderzoek
@@ -133,7 +151,7 @@ def write_last(v):
 
 def latest_request():
     """Return (id, chat_id) of the most recent RESEARCH_REQUEST in Railway logs."""
-    if not os.path.exists(RAILWAY):
+    if not RAILWAY or not os.path.exists(RAILWAY):
         log("railway CLI niet gevonden"); return None
     rc, out, err = run([RAILWAY, "logs", "-d", "--lines", "150"], timeout=60)
     if rc != 0:
@@ -149,7 +167,7 @@ def latest_request():
 # ------------------------------------------------------------ research -------
 
 def do_research(token, chat_id):
-    if not os.path.exists(CLAUDE):
+    if not CLAUDE or not os.path.exists(CLAUDE):
         tg_send(token, chat_id, "⚠️ Claude CLI niet gevonden op de laptop.")
         return
     log("Claude deep-research gestart…")
