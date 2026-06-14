@@ -31,8 +31,10 @@ API = "https://api.telegram.org/bot{token}/{method}"
 
 HELP = (
     "🤖 <b>Tax Developments bot</b>\n\n"
+    "💬 Typ <b>API</b> voor diepgaand AI-onderzoek (Claude, via je laptop).\n"
     "💬 Typ <b>fastlane</b> voor een directe update (nieuws + overzicht).\n"
     "💬 Typ <b>Tax</b> of <b>Belasting</b> voor alleen het CIT/EU-overzicht.\n\n"
+    "/api — deep research (Claude) naar de nieuwste tax-ontwikkelingen\n"
     "/fastlane — nu meteen: nieuwe ontwikkelingen + CIT/EU-overzicht\n"
     "/overview — alleen het volledige overzicht (CIT + EU)\n"
     "/cit — CIT-tarieven per land\n"
@@ -109,6 +111,7 @@ def handle(token, chat_id, text):
 
 def set_commands(token):
     cmds = [
+        {"command": "api", "description": "Deep research (Claude) naar tax-ontwikkelingen"},
         {"command": "fastlane", "description": "Update nu: nieuws + CIT/EU-overzicht"},
         {"command": "overview", "description": "Alleen het CIT/EU-overzicht"},
         {"command": "cit", "description": "CIT-tarieven per land (of /cit NL)"},

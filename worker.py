@@ -121,9 +121,18 @@ def start_scheduler():
 
 # ----------------------------------------------------------- command loop -----
 
-def handle_message(token, chat_id, text):
+def handle_message(token, chat_id, text, update_id=0):
     cmd = text.strip().partition(" ")[0].lower().lstrip("/").split("@")[0]
-    if cmd == "fastlane":
+    if cmd == "api":
+        # Deep research draait GRATIS via Claude Code op de laptop. Railway kan
+        # het zelf niet; we loggen een verzoek dat de laptop-runner oppikt.
+        log(f"RESEARCH_REQUEST id={update_id} chat={chat_id}")
+        poller.send(token, chat_id,
+                    "🔎 <b>Deep research aangevraagd</b>\n"
+                    "Claude doet onderzoek naar de nieuwste tax-ontwikkelingen. "
+                    "Als je laptop met Claude aan staat krijg je binnen ~1–3 min een "
+                    "samenvatting; anders zodra je laptop weer aan is.")
+    elif cmd == "fastlane":
         # On-demand: dezelfde gecombineerde update als de 2x/week-planning.
         poller.send(token, chat_id, "⏳ Fastlane-update gestart… (nieuws + overzicht)")
         combined_update("fastlane")
@@ -164,7 +173,7 @@ def command_loop(token):
                     continue
                 log(f"cmd from {chat_id}: {text[:40]}")
                 try:
-                    handle_message(token, chat_id, text)
+                    handle_message(token, chat_id, text, upd["update_id"])
                 except Exception as e:  # noqa: BLE001
                     log(f"handle fout: {e}")
         except Exception as e:  # noqa: BLE001
