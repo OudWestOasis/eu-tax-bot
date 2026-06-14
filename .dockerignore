@@ -1,0 +1,16 @@
+# Keep the image small and never ship secrets/local cruft.
+.git
+.github
+.venv
+venv
+__pycache__
+*.pyc
+*.log
+config.local.json
+.env
+runner.lock
+last_scan.txt
+SETUP_CLOUD.md
+README.md
+register_*.ps1
+disable_local.ps1

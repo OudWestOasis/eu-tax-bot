@@ -38,8 +38,11 @@ from settings import load_config
 import coordinator
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-STATE_PATH = os.path.join(HERE, "state.json")
-LOG_PATH = os.path.join(HERE, "monitor.log")
+# DATA_DIR lets the state live on a persistent volume (Railway) instead of the
+# ephemeral container filesystem. Defaults to the script dir for local/CI use.
+DATA_DIR = os.environ.get("DATA_DIR", HERE)
+STATE_PATH = os.path.join(DATA_DIR, "state.json")
+LOG_PATH = os.path.join(DATA_DIR, "monitor.log")
 
 STATUS_ORDER = {"ENACTED": 0, "PROPOSAL": 1, "UPDATE": 2}
 
