@@ -30,17 +30,17 @@ import coordinator
 API = "https://api.telegram.org/bot{token}/{method}"
 
 HELP = (
-    "🤖 <b>Tax Developments bot (cloud)</b>\n\n"
-    "💬 Tip: typ gewoon <b>Tax</b> of <b>Belasting</b> (hoofdletters maakt niet uit) "
-    "voor het volledige overzicht.\n\n"
-    "/overview — volledig overzicht (CIT + EU)\n"
+    "🤖 <b>Tax Developments bot</b>\n\n"
+    "💬 Typ <b>fastlane</b> voor een directe update (nieuws + overzicht).\n"
+    "💬 Typ <b>Tax</b> of <b>Belasting</b> voor alleen het CIT/EU-overzicht.\n\n"
+    "/fastlane — nu meteen: nieuwe ontwikkelingen + CIT/EU-overzicht\n"
+    "/overview — alleen het volledige overzicht (CIT + EU)\n"
     "/cit — CIT-tarieven per land\n"
     "/cit NL — detail voor één land (bv. NL, FI, DE)\n"
     "/eu — EU-ontwikkelingen\n"
-    "/scan — draai nu een verse nieuws-scan\n"
     "/help — deze hulp\n\n"
-    "ℹ️ Draait in de cloud: antwoorden komen meestal binnen ~5 min.\n"
-    "Elke ochtend krijg je nieuwe ontwikkelingen; elke maandag én vrijdag het volledige overzicht."
+    "ℹ️ Automatisch krijg je <b>2× per week</b> een update: maandag & vrijdag ochtend.\n"
+    "Verder reageert de bot direct op je commando's."
 )
 
 
@@ -109,10 +109,10 @@ def handle(token, chat_id, text):
 
 def set_commands(token):
     cmds = [
-        {"command": "overview", "description": "Volledig overzicht (CIT + EU)"},
+        {"command": "fastlane", "description": "Update nu: nieuws + CIT/EU-overzicht"},
+        {"command": "overview", "description": "Alleen het CIT/EU-overzicht"},
         {"command": "cit", "description": "CIT-tarieven per land (of /cit NL)"},
         {"command": "eu", "description": "EU-ontwikkelingen"},
-        {"command": "scan", "description": "Draai nu een verse nieuws-scan"},
         {"command": "help", "description": "Hulp"},
     ]
     try:

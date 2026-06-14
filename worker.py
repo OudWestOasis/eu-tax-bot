@@ -93,14 +93,12 @@ def job_overview():
         log(f"overzicht fout: {e}")
 
 
-def job_email():
-    try:
-        email_overview.main()
-        log("overzicht (e-mail) verstuurd")
-    except SystemExit:
-        log("e-mail: SystemExit (SMTP secrets?)")
-    except Exception as e:  # noqa: BLE001
-        log(f"e-mail fout: {e}")
+def combined_update(reason=""):
+    """De '2x per week'-update: nieuwe ontwikkelingen (scan) + CIT/EU-overzicht."""
+    log(f"combined update start ({reason})")
+    do_scan(reason)        # stuurt nieuwe ontwikkelingen (of niets nieuws)
+    job_overview()         # stuurt het CIT/EU-overzicht
+    log("combined update klaar")
 
 
 def start_scheduler():
@@ -108,19 +106,16 @@ def start_scheduler():
     # NB: timezone moet PER trigger mee — een losse CronTrigger erft de
     # scheduler-tz niet, en zou anders op lokale tijd draaien.
     UTC = "UTC"
-    # Dagelijkse nieuws-scan — 06:00 UTC (= 07:00/08:00 NL).
-    sched.add_job(lambda: do_scan("schedule"), CronTrigger(hour=6, minute=0, timezone=UTC),
-                  id="scan", misfire_grace_time=3600)
-    # Overzicht naar Telegram — maandag 06:30 en vrijdag 06:00 UTC.
-    sched.add_job(job_overview, CronTrigger(day_of_week="mon", hour=6, minute=30, timezone=UTC),
-                  id="overview_mon", misfire_grace_time=3600)
-    sched.add_job(job_overview, CronTrigger(day_of_week="fri", hour=6, minute=0, timezone=UTC),
-                  id="overview_fri", misfire_grace_time=3600)
-    # Overzicht per e-mail — vrijdag 06:00 UTC.
-    sched.add_job(job_email, CronTrigger(day_of_week="fri", hour=6, minute=0, timezone=UTC),
-                  id="email_fri", misfire_grace_time=3600)
+    # Gecombineerde update — 2x per week: maandag + vrijdag 06:00 UTC
+    # (= 08:00 NL zomer / 07:00 NL winter).
+    sched.add_job(lambda: combined_update("schedule-mon"),
+                  CronTrigger(day_of_week="mon", hour=6, minute=0, timezone=UTC),
+                  id="update_mon", misfire_grace_time=3600)
+    sched.add_job(lambda: combined_update("schedule-fri"),
+                  CronTrigger(day_of_week="fri", hour=6, minute=0, timezone=UTC),
+                  id="update_fri", misfire_grace_time=3600)
     sched.start()
-    log("scheduler gestart (UTC): scan 06:00 dagelijks · overzicht ma 06:30 + vr 06:00 · mail vr 06:00")
+    log("scheduler gestart (UTC): gecombineerde update ma 06:00 + vr 06:00")
     return sched
 
 
@@ -128,7 +123,12 @@ def start_scheduler():
 
 def handle_message(token, chat_id, text):
     cmd = text.strip().partition(" ")[0].lower().lstrip("/").split("@")[0]
-    if cmd == "scan":
+    if cmd == "fastlane":
+        # On-demand: dezelfde gecombineerde update als de 2x/week-planning.
+        poller.send(token, chat_id, "⏳ Fastlane-update gestart… (nieuws + overzicht)")
+        combined_update("fastlane")
+        poller.send(token, chat_id, "✅ Update klaar.")
+    elif cmd == "scan":
         # /scan via de gedeelde, gelockte scan (geen dubbele scan-threads).
         poller.send(token, chat_id, "⏳ Verse nieuws-scan gestart…")
         do_scan("command")
@@ -189,8 +189,10 @@ def main():
     if os.environ.get("ANNOUNCE_STARTUP", "1") == "1":
         try:
             poller.send(token, chat_id,
-                        "✅ <b>Bot draait nu volledig op Railway</b>\n"
-                        "Commando's worden direct beantwoord. Typ <b>Tax</b> of /help.")
+                        "✅ <b>Bot bijgewerkt</b>\n"
+                        "Je krijgt nu automatisch <b>2× per week</b> een update "
+                        "(maandag & vrijdag ochtend).\n"
+                        "Typ <b>fastlane</b> voor een directe update, of /help.")
         except Exception:  # noqa: BLE001
             pass
 
