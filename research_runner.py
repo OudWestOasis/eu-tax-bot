@@ -221,5 +221,21 @@ def main():
         release_lock()
 
 
+def loop(interval=60):
+    """Persistent mode: poll every `interval` seconds. Started at logon from the
+    Startup folder so it runs in the full user session (Task Scheduler strips the
+    profile and then can't see AppData\\npm / Claude auth)."""
+    log("research-runner loop gestart")
+    while True:
+        try:
+            main()
+        except Exception as e:  # noqa: BLE001
+            log(f"loop fout: {e}")
+        time.sleep(interval)
+
+
 if __name__ == "__main__":
-    main()
+    if "--once" in sys.argv:
+        main()
+    else:
+        loop()
